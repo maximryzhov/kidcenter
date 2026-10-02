@@ -3,7 +3,7 @@ import { BrowserRouter, Link, Outlet, Route, Routes, useLocation, useNavigate } 
 import { Avatar, Badge, Button, Drawer, Input, Popover } from 'antd';
 import {
   ArrowRightOutlined, BellOutlined, BookOutlined, CalendarOutlined, CheckCircleFilled,
-  FolderOpenOutlined, HeartFilled, HomeOutlined, MenuOutlined, ReadOutlined,
+  FolderOpenOutlined, HomeOutlined, MenuOutlined, ReadOutlined,
   SmileOutlined, StarOutlined, TeamOutlined, UserOutlined,
 } from '@ant-design/icons';
 import { api, type Notification, type Role, type Student, type Teacher } from './data';
@@ -32,18 +32,17 @@ function LandingPage() {
   return <div className="landing">
     <header className="landing-header page-container">
       <Brand />
-      <span className="landing-header-note"><span className="small-sun">✳</span> Место, где растут с радостью</span>
-      <a href="#entry" className="header-entry">Личный кабинет <ArrowRightOutlined /></a>
+      <span className="landing-header-note"><span className="small-sun">✳</span> Система для центра развития детей</span>
     </header>
 
     <main className="landing-main page-container">
       <div className="landing-copy">
-        <div className="eyebrow"><span className="eyebrow-dot" /> ДОБРО ПОЖАЛОВАТЬ В «ОТКРЫТИЕ»</div>
-        <h1>Каждый день —<br />новое <em>открытие</em><span className="title-star">✳</span></h1>
-        <p className="landing-lead">Тёплое пространство для маленьких исследователей и тех, кто помогает им расти. Всё важное — в одном месте.</p>
+        <div className="eyebrow"><span className="eyebrow-dot" /> ЦИФРОВОЕ ПРОСТРАНСТВО «ОТКРЫТИЕ»</div>
+        <h1>Занятия —<br /><em>под рукой</em><span className="title-star">✳</span></h1>
+        <p className="landing-lead">Современная система для педагогов и учеников: календарь занятий, уведомления и личная информация в одном месте.</p>
         <div className="landing-perks">
-          <span><CheckCircleFilled /> Занятия под рукой</span>
-          <span><CheckCircleFilled /> Всегда на связи</span>
+          <span><CheckCircleFilled /> Удобный календарь</span>
+          <span><CheckCircleFilled /> Важные уведомления</span>
         </div>
         <div className="landing-art" aria-hidden="true">
           <div className="art-orbit orbit-one" /><div className="art-orbit orbit-two" />
@@ -56,9 +55,9 @@ function LandingPage() {
 
       <div className="login-wrap" id="entry">
         <div className="login-card">
-          <div className="login-card-top"><div className="login-welcome-icon"><SmileOutlined /></div><span>РАДЫ ВАС ВИДЕТЬ</span></div>
+          <div className="login-card-top"><div className="login-welcome-icon"><SmileOutlined /></div><span>ВХОД В СИСТЕМУ</span></div>
           <h2>Добро пожаловать!</h2>
-          <p className="login-subtitle">Войдите в свой кабинет, чтобы быть в курсе всего интересного.</p>
+          <p className="login-subtitle">Выберите роль, чтобы открыть расписание и уведомления.</p>
           <div className="login-label">Я в «Открытии» как</div>
           <div className="role-tabs">
             <button className={role === 'teacher' ? 'role-tab active' : 'role-tab'} onClick={() => setRole('teacher')}><BookOutlined /> Педагог</button>
@@ -71,10 +70,10 @@ function LandingPage() {
           <Button className="login-submit" type="primary" size="large" loading={entering} onClick={enter}>Войти в кабинет <ArrowRightOutlined /></Button>
           <div className="login-hint"><span>✦</span> Это демонстрационная версия — просто нажмите «Войти»</div>
         </div>
-        <div className="login-caption"><HeartFilled /> С любовью к каждому маленькому шагу</div>
+        <div className="login-caption">Демонстрационный доступ · данные не сохраняются на сервере</div>
       </div>
     </main>
-    <footer className="landing-footer page-container"><span>© 2026 «Открытие» — центр развития детей</span><span>Учимся. Играем. Растём вместе.</span></footer>
+    <footer className="landing-footer page-container"><span>© 2026 «Открытие» — центр развития детей</span><span>Демонстрационная версия системы</span></footer>
   </div>;
 }
 
@@ -120,7 +119,7 @@ function Shell({ role }: { role: Role }) {
       {links.map(link => <Link to={`${base}/${link.path}`} className={`nav-link ${location.pathname === `${base}/${link.path}` ? 'selected' : ''}`} key={link.path}>{link.icon}<span>{link.label}</span>{location.pathname === `${base}/${link.path}` && <span className="nav-selected-dot" />}</Link>)}
     </nav>
     <div className="sidebar-spacer" />
-    <div className="sidebar-tip"><div className="tip-sun">✳</div><strong>Маленькие шаги.<br />Большие открытия.</strong><span>Каждый день — новая возможность удивиться!</span></div>
+    <div className="sidebar-tip"><div className="tip-sun">✳</div><strong>Всё в одном месте</strong><span>Расписание, контакты и уведомления доступны в личном кабинете.</span></div>
     <Link to="/" className="sidebar-exit"><HomeOutlined /> На главную</Link>
   </>;
 
@@ -139,8 +138,8 @@ function Shell({ role }: { role: Role }) {
           <button className="topbar-user" onClick={() => navigate(`${base}/profile`)}><Avatar className={`person-avatar ${isTeacher ? 'avatar-teacher' : 'avatar-lavender'}`} size={38}>{profile?.initials}</Avatar><span><strong>{profile?.name}</strong><small>{isTeacher ? 'Педагог' : 'Ученик'}</small></span></button>
         </div>
       </header>
-      <main className="content"><Outlet /></main>
-      <footer className="shell-footer">© 2026 «Открытие» <span>С заботой о каждом открытии ♡</span></footer>
+      <main className="content"><Outlet context={{ profile, setProfile }} /></main>
+      <footer className="shell-footer">© 2026 «Открытие» <span>Демонстрационная версия системы</span></footer>
     </div>
   </div>;
 }

@@ -17,6 +17,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
       colorTextSecondary: '#808b82',
       borderRadius: 14,
       fontFamily: 'Manrope, sans-serif',
+      fontSize: 16,
       controlHeight: 42,
       colorBorder: '#e9ebe5',
     } }}>

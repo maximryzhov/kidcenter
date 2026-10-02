@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
 import { Avatar, Button, Drawer, Input, Select, Tag } from 'antd';
 import {
   ArrowLeftOutlined, ArrowRightOutlined, BellOutlined, CalendarOutlined, ClockCircleOutlined,
-  EnvironmentOutlined, FileTextOutlined, FolderOpenOutlined, HeartFilled, MailOutlined,
+  EditOutlined, EnvironmentOutlined, FileTextOutlined, FolderOpenOutlined, HeartFilled, MailOutlined,
   PhoneOutlined, SearchOutlined, SendOutlined, StarOutlined, StarFilled, TeamOutlined,
   UserOutlined,
 } from '@ant-design/icons';
@@ -120,27 +121,71 @@ export function LessonsPage({ role }: { role: Role }) {
       </div>
     </div>
     <div className="schedule-bottom"><div><span className="schedule-legend-dot" /> Занятия на этой неделе: <strong>{visible.filter(lesson => days.some(day => dayjs(lesson.start).isSame(day, 'day'))).length}</strong></div><span>Нажмите на занятие, чтобы узнать подробности</span></div>
-    <div className="schedule-note"><span className="schedule-note-icon"><StarOutlined /></span><div><strong>Маленькое напоминание</strong><p>{isTeacher ? 'Каждое занятие — возможность вдохновить кого-то на новое открытие.' : 'Не забудь взять с собой любопытство и хорошее настроение!'}</p></div></div>
+    <div className="schedule-note"><span className="schedule-note-icon"><StarOutlined /></span><div><strong>Демонстрационная версия</strong><p>Расписание содержит примерные данные. Изменения на сервере не сохраняются.</p></div></div>
     <Drawer title="О занятии" open={!!activeLesson} onClose={() => setActiveLesson(undefined)} width={400} className="lesson-drawer">
       {activeLesson && <div className="lesson-detail-body"><span className={`lesson-detail-badge lesson-${activeLesson.color}`}>{activeLesson.topic}</span><h2>{activeLesson.title}</h2><p>Немного нового каждый день — большое открытие со временем.</p><div className="detail-divider" /><div className="lesson-info-row"><CalendarOutlined /><span><small>Когда</small><strong>{dayjs(activeLesson.start).format('D MMMM, dddd')}</strong></span></div><div className="lesson-info-row"><ClockCircleOutlined /><span><small>Время</small><strong>{dayjs(activeLesson.start).format('HH:mm')}–{dayjs(activeLesson.end).format('HH:mm')}</strong></span></div><div className="lesson-info-row"><EnvironmentOutlined /><span><small>Место</small><strong>{activeLesson.room}</strong></span></div><div className="lesson-info-row"><TeamOutlined /><span><small>Группа</small><strong>{activeLesson.group}</strong></span></div><div className="lesson-info-row"><UserOutlined /><span><small>Педагог</small><strong>{activeLesson.teacher}</strong></span></div>{isTeacher && <><div className="detail-divider" /><div className="detail-label">УЧЕНИКИ</div><div className="lesson-student-tags">{students.filter(item => activeLesson.students.includes(item.id)).map(item => <Tag key={item.id}>{item.name}</Tag>)}</div></>}</div>}
     </Drawer>
   </div>;
 }
 
+type ProfileDraft = {
+  name: string;
+  about: string;
+  email: string;
+  max: string;
+  telegram: string;
+  specialty: string;
+  experience: string;
+  location: string;
+  subjects: string;
+  interests: string;
+  parentContacts: Student['parentContacts'];
+};
+
 export function ProfilePage({ role }: { role: Role }) {
-  const [profile, setProfile] = useState<Teacher | Student>();
-  useEffect(() => { api<Teacher | Student>(`${role}/profile/`).then(setProfile); }, [role]);
+  const { profile, setProfile } = useOutletContext<{ profile?: Teacher | Student; setProfile: (value: Teacher | Student) => void }>();
+  const [draft, setDraft] = useState<ProfileDraft>();
   if (!profile) return null;
   const isTeacher = role === 'teacher';
   const teacher = profile as Teacher;
   const student = profile as Student;
 
+  function openEditor() {
+    setDraft({
+      name: profile!.name, about: profile!.about, email: profile!.email,
+      max: profile!.max, telegram: profile!.telegram,
+      specialty: isTeacher ? teacher.specialty : '',
+      experience: isTeacher ? teacher.experience : '',
+      location: isTeacher ? teacher.location : '',
+      subjects: isTeacher ? teacher.subjects.join(', ') : '',
+      interests: isTeacher ? '' : student.interests.join(', '),
+      parentContacts: isTeacher ? [] : student.parentContacts.map(parent => ({ ...parent })),
+    });
+  }
+
+  function update(field: Exclude<keyof ProfileDraft, 'parentContacts'>, value: string) {
+    setDraft(current => current && { ...current, [field]: value });
+  }
+
+  function save() {
+    if (!draft) return;
+    const common = {
+      name: draft.name, about: draft.about, email: draft.email,
+      max: draft.max, telegram: draft.telegram,
+      initials: draft.name.trim().split(/\s+/).slice(0, 2).map(part => part[0] || '').join('').toUpperCase(),
+    };
+    setProfile(isTeacher
+      ? { ...teacher, ...common, specialty: draft.specialty, experience: draft.experience, location: draft.location, subjects: draft.subjects.split(',').map(item => item.trim()).filter(Boolean) }
+      : { ...student, ...common, interests: draft.interests.split(',').map(item => item.trim()).filter(Boolean), parentContacts: draft.parentContacts });
+    setDraft(undefined);
+  }
+
   return <div className="page-enter">
-    <PageHeading kicker="НЕМНОГО О ВАС" title="Личная страница" description="Ваше уютное место в «Открытии»." />
+    <PageHeading kicker="ВАШИ ДАННЫЕ" title="Личная страница" description="Просматривайте и редактируйте информацию о себе." />
     <div className="profile-layout">
       <div className="profile-main-card">
         <div className="profile-cover"><span className="cover-flower">✳</span><span className="cover-spark">✦</span><span className="cover-spark second">✧</span></div>
-        <div className="profile-main-content"><div className="profile-avatar-wrap"><Initials initials={profile.initials} color={isTeacher ? 'teacher' : student.color} size={92} /></div><div className="profile-name-row"><div><div className="profile-role-pill">{isTeacher ? '✦ ПЕДАГОГ' : '✦ УЧЕНИК'}</div><h2>{profile.name}</h2><p>{isTeacher ? teacher.specialty : `${student.age} лет · группа «${student.group}»`}</p></div></div><div className="detail-divider" /><div className="detail-label">ОБО МНЕ</div><p className="profile-about">{profile.about}</p><div className="detail-label">{isTeacher ? 'МОИ НАПРАВЛЕНИЯ' : 'МОИ ИНТЕРЕСЫ'}</div><div className="interest-tags">{(isTeacher ? teacher.subjects : student.interests).map(item => <Tag key={item}>{item}</Tag>)}</div></div>
+        <div className="profile-main-content"><div className="profile-avatar-wrap"><Initials initials={profile.initials} color={isTeacher ? 'teacher' : student.color} size={92} /></div><div className="profile-name-row"><div><div className="profile-role-pill">{isTeacher ? '✦ ПЕДАГОГ' : '✦ УЧЕНИК'}</div><h2>{profile.name}</h2><p>{isTeacher ? teacher.specialty : `${student.age} лет · группа «${student.group}»`}</p></div><Button icon={<EditOutlined />} onClick={openEditor}>Редактировать</Button></div><div className="detail-divider" /><div className="detail-label">ОБО МНЕ</div><p className="profile-about">{profile.about}</p><div className="detail-label">{isTeacher ? 'МОИ НАПРАВЛЕНИЯ' : 'МОИ ИНТЕРЕСЫ'}</div><div className="interest-tags">{(isTeacher ? teacher.subjects : student.interests).map(item => <Tag key={item}>{item}</Tag>)}</div></div>
       </div>
       <div className="profile-side">
         <section className="white-card contact-card"><div className="section-title"><div className="section-icon"><MailOutlined /></div><div><h3>Мои контакты</h3><p>Как со мной связаться</p></div></div><ContactLines email={profile.email} max={profile.max} telegram={profile.telegram} /></section>
@@ -150,6 +195,33 @@ export function ProfilePage({ role }: { role: Role }) {
         {!isTeacher && <section className="white-card parent-profile-card"><div className="section-title"><div className="section-icon violet-icon"><TeamOutlined /></div><div><h3>Контакты родителей</h3><p>Всегда на связи</p></div></div>{student.parentContacts.map(parent => <div className="parent-contact" key={parent.name}><div className="parent-icon"><PhoneOutlined /></div><div><strong>{parent.name}</strong><small>{parent.relation} · {parent.phone}</small></div></div>)}</section>}
       </div>
     </div>
+    <Drawer title="Редактирование моих данных" open={!!draft} onClose={() => setDraft(undefined)} width={480} className="profile-edit-drawer">
+      {draft && <div className="profile-edit-form">
+        <p className="profile-edit-hint">Изменения видны только в этой вкладке до обновления страницы. На сервер данные не отправляются.</p>
+        <label>Имя и фамилия<Input value={draft.name} onChange={event => update('name', event.target.value)} /></label>
+        <label>Обо мне<Input.TextArea rows={3} value={draft.about} onChange={event => update('about', event.target.value)} /></label>
+        <div className="detail-label">МОИ КОНТАКТЫ</div>
+        <label>Электронная почта<Input value={draft.email} onChange={event => update('email', event.target.value)} /></label>
+        <label>MAX<Input value={draft.max} onChange={event => update('max', event.target.value)} /></label>
+        <label>Telegram<Input value={draft.telegram} onChange={event => update('telegram', event.target.value)} /></label>
+        {isTeacher ? <>
+          <div className="detail-label">ИНФОРМАЦИЯ О ПЕДАГОГЕ</div>
+          <label>Специализация<Input value={draft.specialty} onChange={event => update('specialty', event.target.value)} /></label>
+          <label>Направления (через запятую)<Input value={draft.subjects} onChange={event => update('subjects', event.target.value)} /></label>
+          <label>Опыт<Input value={draft.experience} onChange={event => update('experience', event.target.value)} /></label>
+          <label>Кабинет<Input value={draft.location} onChange={event => update('location', event.target.value)} /></label>
+        </> : <>
+          <div className="detail-label">ИНФОРМАЦИЯ ОБ УЧЕНИКЕ</div>
+          <label>Интересы (через запятую)<Input value={draft.interests} onChange={event => update('interests', event.target.value)} /></label>
+          <div className="detail-label">КОНТАКТЫ РОДИТЕЛЕЙ</div>
+          {draft.parentContacts.map((parent, index) => <div className="profile-edit-parent" key={index}>
+            <label>Имя родителя<Input value={parent.name} onChange={event => setDraft(current => current && { ...current, parentContacts: current.parentContacts.map((item, i) => i === index ? { ...item, name: event.target.value } : item) })} /></label>
+            <label>Телефон<Input value={parent.phone} onChange={event => setDraft(current => current && { ...current, parentContacts: current.parentContacts.map((item, i) => i === index ? { ...item, phone: event.target.value } : item) })} /></label>
+          </div>)}
+        </>}
+        <div className="profile-edit-actions"><Button onClick={() => setDraft(undefined)}>Отмена</Button><Button type="primary" onClick={save}>Сохранить в этой вкладке</Button></div>
+      </div>}
+    </Drawer>
   </div>;
 }
 
