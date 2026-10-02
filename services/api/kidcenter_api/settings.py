@@ -3,7 +3,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "mockup-only-not-for-production"
 DEBUG = True
-ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
+ALLOWED_HOSTS = ["*"]
 ROOT_URLCONF = "kidcenter_api.urls"
 INSTALLED_APPS = ["rest_framework"]
 MIDDLEWARE = ["django.middleware.common.CommonMiddleware"]
