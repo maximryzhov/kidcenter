@@ -74,7 +74,7 @@ function LandingPage() {
         <div className="login-caption">Демонстрационный доступ к системе</div>
       </div>
     </main>
-    <footer className="landing-footer page-container"><span>© 2026 «Открытие» — центр развития детей</span><span>Демонстрационная версия системы</span></footer>
+    <footer className="landing-footer page-container"><span>© 2026 «Открытие» — центр развития детей</span><div className="shell-footer-meta"><span>Демонстрационная версия системы</span><span>Разработано в <a href="https://7-sky.net">7SKY</a></span></div></footer>
   </div>;
 }
 
