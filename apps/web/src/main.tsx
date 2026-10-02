@@ -14,11 +14,11 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <ConfigProvider locale={ruRU} theme={{ token: {
       colorPrimary: '#566b55',
       colorText: '#25352d',
-      colorTextSecondary: '#808b82',
+      colorTextSecondary: '#536657',
       borderRadius: 14,
       fontFamily: 'Manrope, sans-serif',
-      fontSize: 16,
-      controlHeight: 42,
+      fontSize: 17,
+      controlHeight: 46,
       colorBorder: '#e9ebe5',
     } }}>
       <App />

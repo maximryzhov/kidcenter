@@ -10,6 +10,7 @@ export interface Student {
   id: string;
   name: string;
   initials: string;
+  avatarUrl?: string;
   age: number;
   group: string;
   color: string;
@@ -30,6 +31,7 @@ export interface Teacher {
   shortName: string;
   role: string;
   initials: string;
+  avatarUrl?: string;
   specialty: string;
   experience: string;
   about: string;

@@ -1,21 +1,18 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
-import { Avatar, Button, Drawer, Input, Select, Tag } from 'antd';
+import { Button, DatePicker, Drawer, Input, Select, Tag, TimePicker } from 'antd';
 import {
   ArrowLeftOutlined, ArrowRightOutlined, BellOutlined, CalendarOutlined, ClockCircleOutlined,
   EditOutlined, EnvironmentOutlined, FileTextOutlined, FolderOpenOutlined, HeartFilled, MailOutlined,
   PhoneOutlined, SearchOutlined, SendOutlined, StarOutlined, StarFilled, TeamOutlined,
-  UserOutlined,
+  UserOutlined, PlusOutlined,
 } from '@ant-design/icons';
 import dayjs, { type Dayjs } from 'dayjs';
 import { api, type Lesson, type Notification, type Role, type Student, type Teacher } from './data';
+import PersonAvatar from './PersonAvatar';
 
 function PageHeading({ kicker, title, description, action }: { kicker: string; title: string; description: string; action?: React.ReactNode }) {
   return <div className="page-heading"><div><div className="page-kicker"><span />{kicker}</div><h1>{title}</h1><p>{description}</p></div>{action && <div className="heading-action">{action}</div>}</div>;
-}
-
-function Initials({ initials, color = 'lavender', size = 48 }: { initials: string; color?: string; size?: number }) {
-  return <Avatar size={size} className={`person-avatar avatar-${color}`}>{initials}</Avatar>;
 }
 
 function ContactLines({ email, max, telegram }: { email: string; max: string; telegram: string }) {
@@ -43,7 +40,7 @@ export function StudentsPage() {
         <div className="list-toolbar"><Input placeholder="Найти ученика" prefix={<SearchOutlined />} value={search} onChange={event => setSearch(event.target.value)} className="student-search" /><Select value={group} onChange={setGroup} className="group-select" options={[{ value: 'all', label: 'Все группы' }, { value: 'Звёздочки', label: 'Звёздочки' }, { value: 'Исследователи', label: 'Исследователи' }]} /></div>
         <div className="student-list">
           {filtered.map(student => <button key={student.id} onClick={() => setSelectedId(student.id)} className={`student-row ${selectedId === student.id ? 'active' : ''}`}>
-            <Initials initials={student.initials} color={student.color} size={52} />
+            <PersonAvatar initials={student.initials} avatarUrl={student.avatarUrl} color={student.color} size={52} />
             <span className="student-row-main"><strong>{student.name}</strong><small>{student.group} <span>·</span> {student.age} лет</small></span>
             <span className="student-row-end"><span className="student-row-label">Следующее занятие</span><span>{student.nextLesson}</span></span>
             <ArrowRightOutlined className="student-row-arrow" />
@@ -54,7 +51,7 @@ export function StudentsPage() {
       {selected && <div className="student-detail">
         <div className="student-detail-banner"><span className="detail-decor one">✳</span><span className="detail-decor two">✦</span><span>КАРТОЧКА УЧЕНИКА</span></div>
         <div className="student-detail-content">
-          <div className="student-identity"><Initials initials={selected.initials} color={selected.color} size={76} /><h2>{selected.name}</h2><span>{selected.age} лет · группа «{selected.group}»</span></div>
+          <div className="student-identity"><PersonAvatar initials={selected.initials} avatarUrl={selected.avatarUrl} color={selected.color} size={76} /><h2>{selected.name}</h2><span>{selected.age} лет · группа «{selected.group}»</span></div>
           <div className="detail-divider" />
           <div className="detail-label">НЕМНОГО О РЕБЁНКЕ</div><p className="student-about">{selected.about}</p>
           <div className="detail-label">ИНТЕРЕСЫ</div><div className="interest-tags">{selected.interests.map(interest => <Tag key={interest}>{interest}</Tag>)}</div>
@@ -79,8 +76,20 @@ function LessonCard({ lesson, compact = false, onClick }: { lesson: Lesson; comp
   </button>;
 }
 
+type LessonDraft = {
+  title: string;
+  topic: string;
+  date: Dayjs;
+  start: Dayjs;
+  end: Dayjs;
+  group: string;
+  students: string[];
+  room: string;
+};
+
 export function LessonsPage({ role }: { role: Role }) {
   const isTeacher = role === 'teacher';
+  const { profile } = useOutletContext<{ profile?: Teacher | Student }>();
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
   const [week, setWeek] = useState(dayjs('2026-10-05'));
@@ -88,6 +97,7 @@ export function LessonsPage({ role }: { role: Role }) {
   const [student, setStudent] = useState('all');
   const [group, setGroup] = useState('all');
   const [activeLesson, setActiveLesson] = useState<Lesson>();
+  const [lessonDraft, setLessonDraft] = useState<LessonDraft>();
 
   useEffect(() => {
     api<Lesson[]>(`${role}/lessons/`).then(setLessons);
@@ -98,16 +108,47 @@ export function LessonsPage({ role }: { role: Role }) {
   const topics = [...new Set(lessons.map(lesson => lesson.topic))];
   const visible = lessons.filter(lesson => (topic === 'all' || lesson.topic === topic) && (student === 'all' || lesson.students.includes(student)) && (group === 'all' || lesson.group === group));
   const dateLabel = `${week.format('D')}–${week.add(4, 'day').format('D MMMM YYYY')}`;
+  const groups = ['Звёздочки', 'Исследователи'];
+
+  function updateLessonDraft(changes: Partial<LessonDraft>) {
+    setLessonDraft(current => current && { ...current, ...changes });
+  }
+
+  function saveLesson() {
+    if (!lessonDraft) return;
+    const { date, start, end } = lessonDraft;
+    const startAt = date.hour(start.hour()).minute(start.minute()).second(0);
+    const endAt = date.hour(end.hour()).minute(end.minute()).second(0);
+    const created: Lesson = {
+      id: `lesson-local-${Date.now()}`,
+      title: lessonDraft.title,
+      topic: lessonDraft.topic,
+      start: startAt.format('YYYY-MM-DDTHH:mm:ss'),
+      end: endAt.format('YYYY-MM-DDTHH:mm:ss'),
+      group: lessonDraft.group,
+      students: lessonDraft.students,
+      teacher: profile?.name ?? 'Анна Морозова',
+      room: lessonDraft.room,
+      status: 'По расписанию',
+      color: lessonDraft.topic === 'Развитие речи' ? 'violet' : lessonDraft.topic === 'Окружающий мир' ? 'green' : 'pink',
+    };
+    setLessons(current => [...current, created]);
+    setWeek(date.subtract((date.day() + 6) % 7, 'day'));
+    setTopic('all');
+    setGroup('all');
+    setStudent('all');
+    setLessonDraft(undefined);
+  }
 
   return <div className="page-enter">
-    <PageHeading kicker="ВРЕМЯ ОТКРЫТИЙ" title="Мои занятия" description={isTeacher ? 'Планируйте неделю и находите нужное занятие за пару секунд.' : 'Всё интересное, что ждёт тебя на этой неделе.'} action={<div className="soft-count"><CalendarOutlined /> Октябрь 2026</div>} />
+    <PageHeading kicker="ВРЕМЯ ОТКРЫТИЙ" title="Мои занятия" description={isTeacher ? 'Планируйте неделю и находите нужное занятие за пару секунд.' : 'Всё интересное, что ждёт тебя на этой неделе.'} action={isTeacher ? <Button type="primary" icon={<PlusOutlined />} onClick={() => setLessonDraft({ title: '', topic: topics[0] ?? 'Развитие речи', date: week, start: dayjs('2026-10-05T10:00:00'), end: dayjs('2026-10-05T11:00:00'), group: groups[0], students: [], room: '' })}>Добавить занятие</Button> : <div className="soft-count"><CalendarOutlined /> Октябрь 2026</div>} />
     <div className="schedule-panel">
       <div className="schedule-toolbar">
         <div className="week-switch"><button aria-label="Предыдущая неделя" onClick={() => setWeek(week.subtract(7, 'day'))}><ArrowLeftOutlined /></button><strong>{dateLabel}</strong><button aria-label="Следующая неделя" onClick={() => setWeek(week.add(7, 'day'))}><ArrowRightOutlined /></button></div>
         {isTeacher && <div className="schedule-filters">
-          <Select value={topic} onChange={setTopic} options={[{ value: 'all', label: 'Все направления' }, ...topics.map(value => ({ value, label: value }))]} />
-          <Select value={group} onChange={setGroup} options={[{ value: 'all', label: 'Все группы' }, { value: 'Звёздочки', label: 'Звёздочки' }, { value: 'Исследователи', label: 'Исследователи' }]} />
-          <Select value={student} onChange={setStudent} options={[{ value: 'all', label: 'Все ученики' }, ...students.map(value => ({ value: value.id, label: value.name }))]} />
+          <Select className="schedule-topic-select" value={topic} onChange={setTopic} options={[{ value: 'all', label: 'Все направления' }, ...topics.map(value => ({ value, label: value }))]} />
+          <Select className="schedule-group-select" value={group} onChange={setGroup} options={[{ value: 'all', label: 'Все группы' }, ...groups.map(value => ({ value, label: value }))]} />
+          <Select className="schedule-student-select" value={student} onChange={setStudent} showSearch optionFilterProp="label" options={[{ value: 'all', label: 'Все ученики' }, ...students.map(value => ({ value: value.id, label: value.name }))]} />
         </div>}
       </div>
       <div className="schedule-week">
@@ -121,7 +162,18 @@ export function LessonsPage({ role }: { role: Role }) {
       </div>
     </div>
     <div className="schedule-bottom"><div><span className="schedule-legend-dot" /> Занятия на этой неделе: <strong>{visible.filter(lesson => days.some(day => dayjs(lesson.start).isSame(day, 'day'))).length}</strong></div><span>Нажмите на занятие, чтобы узнать подробности</span></div>
-    <div className="schedule-note"><span className="schedule-note-icon"><StarOutlined /></span><div><strong>Демонстрационная версия</strong><p>Расписание содержит примерные данные. Изменения на сервере не сохраняются.</p></div></div>
+    {isTeacher && <Drawer title="Новое занятие" open={!!lessonDraft} onClose={() => setLessonDraft(undefined)} width={480} className="lesson-create-drawer">
+      {lessonDraft && <div className="lesson-create-form">
+        <label>Название занятия<Input value={lessonDraft.title} onChange={event => updateLessonDraft({ title: event.target.value })} /></label>
+        <label>Направление<Select value={lessonDraft.topic} onChange={value => updateLessonDraft({ topic: value })} options={topics.map(value => ({ value, label: value }))} /></label>
+        <label>Дата<DatePicker value={lessonDraft.date} onChange={date => updateLessonDraft({ date: date! })} disabledDate={date => date.day() === 0 || date.day() === 6} format="DD.MM.YYYY" /></label>
+        <div className="lesson-create-times"><label>Начало<TimePicker value={lessonDraft.start} onChange={start => updateLessonDraft({ start: start! })} format="HH:mm" minuteStep={5} /></label><label>Окончание<TimePicker value={lessonDraft.end} onChange={end => updateLessonDraft({ end: end! })} format="HH:mm" minuteStep={5} /></label></div>
+        <label>Группа<Select value={lessonDraft.group} onChange={value => updateLessonDraft({ group: value, students: [] })} options={groups.map(value => ({ value, label: value }))} /></label>
+        <label>Ученики<Select mode="multiple" showSearch optionFilterProp="label" value={lessonDraft.students} onChange={value => updateLessonDraft({ students: value })} options={students.filter(item => item.group === lessonDraft.group).map(item => ({ value: item.id, label: item.name }))} placeholder="Выберите учеников" /></label>
+        <label>Кабинет<Input value={lessonDraft.room} onChange={event => updateLessonDraft({ room: event.target.value })} /></label>
+        <div className="lesson-create-actions"><Button onClick={() => setLessonDraft(undefined)}>Отмена</Button><Button type="primary" onClick={saveLesson}>Добавить занятие</Button></div>
+      </div>}
+    </Drawer>}
     <Drawer title="О занятии" open={!!activeLesson} onClose={() => setActiveLesson(undefined)} width={400} className="lesson-drawer">
       {activeLesson && <div className="lesson-detail-body"><span className={`lesson-detail-badge lesson-${activeLesson.color}`}>{activeLesson.topic}</span><h2>{activeLesson.title}</h2><p>Немного нового каждый день — большое открытие со временем.</p><div className="detail-divider" /><div className="lesson-info-row"><CalendarOutlined /><span><small>Когда</small><strong>{dayjs(activeLesson.start).format('D MMMM, dddd')}</strong></span></div><div className="lesson-info-row"><ClockCircleOutlined /><span><small>Время</small><strong>{dayjs(activeLesson.start).format('HH:mm')}–{dayjs(activeLesson.end).format('HH:mm')}</strong></span></div><div className="lesson-info-row"><EnvironmentOutlined /><span><small>Место</small><strong>{activeLesson.room}</strong></span></div><div className="lesson-info-row"><TeamOutlined /><span><small>Группа</small><strong>{activeLesson.group}</strong></span></div><div className="lesson-info-row"><UserOutlined /><span><small>Педагог</small><strong>{activeLesson.teacher}</strong></span></div>{isTeacher && <><div className="detail-divider" /><div className="detail-label">УЧЕНИКИ</div><div className="lesson-student-tags">{students.filter(item => activeLesson.students.includes(item.id)).map(item => <Tag key={item.id}>{item.name}</Tag>)}</div></>}</div>}
     </Drawer>
@@ -185,7 +237,7 @@ export function ProfilePage({ role }: { role: Role }) {
     <div className="profile-layout">
       <div className="profile-main-card">
         <div className="profile-cover"><span className="cover-flower">✳</span><span className="cover-spark">✦</span><span className="cover-spark second">✧</span></div>
-        <div className="profile-main-content"><div className="profile-avatar-wrap"><Initials initials={profile.initials} color={isTeacher ? 'teacher' : student.color} size={92} /></div><div className="profile-name-row"><div><div className="profile-role-pill">{isTeacher ? '✦ ПЕДАГОГ' : '✦ УЧЕНИК'}</div><h2>{profile.name}</h2><p>{isTeacher ? teacher.specialty : `${student.age} лет · группа «${student.group}»`}</p></div><Button icon={<EditOutlined />} onClick={openEditor}>Редактировать</Button></div><div className="detail-divider" /><div className="detail-label">ОБО МНЕ</div><p className="profile-about">{profile.about}</p><div className="detail-label">{isTeacher ? 'МОИ НАПРАВЛЕНИЯ' : 'МОИ ИНТЕРЕСЫ'}</div><div className="interest-tags">{(isTeacher ? teacher.subjects : student.interests).map(item => <Tag key={item}>{item}</Tag>)}</div></div>
+        <div className="profile-main-content"><div className="profile-avatar-wrap"><PersonAvatar initials={profile.initials} avatarUrl={profile.avatarUrl} color={isTeacher ? 'teacher' : student.color} size={92} /></div><div className="profile-name-row"><div><div className="profile-role-pill">{isTeacher ? '✦ ПЕДАГОГ' : '✦ УЧЕНИК'}</div><h2>{profile.name}</h2><p>{isTeacher ? teacher.specialty : `${student.age} лет · группа «${student.group}»`}</p></div><Button icon={<EditOutlined />} onClick={openEditor}>Редактировать</Button></div><div className="detail-divider" /><div className="detail-label">ОБО МНЕ</div><p className="profile-about">{profile.about}</p><div className="detail-label">{isTeacher ? 'МОИ НАПРАВЛЕНИЯ' : 'МОИ ИНТЕРЕСЫ'}</div><div className="interest-tags">{(isTeacher ? teacher.subjects : student.interests).map(item => <Tag key={item}>{item}</Tag>)}</div></div>
       </div>
       <div className="profile-side">
         <section className="white-card contact-card"><div className="section-title"><div className="section-icon"><MailOutlined /></div><div><h3>Мои контакты</h3><p>Как со мной связаться</p></div></div><ContactLines email={profile.email} max={profile.max} telegram={profile.telegram} /></section>
@@ -197,7 +249,7 @@ export function ProfilePage({ role }: { role: Role }) {
     </div>
     <Drawer title="Редактирование моих данных" open={!!draft} onClose={() => setDraft(undefined)} width={480} className="profile-edit-drawer">
       {draft && <div className="profile-edit-form">
-        <p className="profile-edit-hint">Изменения видны только в этой вкладке до обновления страницы. На сервер данные не отправляются.</p>
+        <p className="profile-edit-hint">Обновите данные профиля и сохраните изменения.</p>
         <label>Имя и фамилия<Input value={draft.name} onChange={event => update('name', event.target.value)} /></label>
         <label>Обо мне<Input.TextArea rows={3} value={draft.about} onChange={event => update('about', event.target.value)} /></label>
         <div className="detail-label">МОИ КОНТАКТЫ</div>
@@ -219,7 +271,7 @@ export function ProfilePage({ role }: { role: Role }) {
             <label>Телефон<Input value={parent.phone} onChange={event => setDraft(current => current && { ...current, parentContacts: current.parentContacts.map((item, i) => i === index ? { ...item, phone: event.target.value } : item) })} /></label>
           </div>)}
         </>}
-        <div className="profile-edit-actions"><Button onClick={() => setDraft(undefined)}>Отмена</Button><Button type="primary" onClick={save}>Сохранить в этой вкладке</Button></div>
+        <div className="profile-edit-actions"><Button onClick={() => setDraft(undefined)}>Отмена</Button><Button type="primary" onClick={save}>Сохранить изменения</Button></div>
       </div>}
     </Drawer>
   </div>;
@@ -228,10 +280,28 @@ export function ProfilePage({ role }: { role: Role }) {
 function BookIcon() { return <FileTextOutlined />; }
 
 export function InboxPage() {
-  const [items, setItems] = useState<Notification[]>([]);
-  useEffect(() => { api<Notification[]>('notifications/').then(setItems); }, []);
-  return <div className="page-enter"><PageHeading kicker="БУДЬТЕ В КУРСЕ" title="Уведомления" description="Здесь живут новости и важные напоминания." action={<div className="soft-count"><BellOutlined /> 1 новое</div>} />
-    <div className="inbox-layout"><div className="inbox-list"><div className="inbox-section-title">НОВЫЕ <span>1</span></div>{items.filter(item => !item.read).map(item => <div className="inbox-item unread" key={item.id}><div className="inbox-icon"><CalendarOutlined /></div><div className="inbox-copy"><div className="inbox-item-heading"><strong>{item.title}</strong><span className="unread-dot" /></div><p>{item.body}</p><small>{item.date}</small></div></div>)}<div className="inbox-section-title older">ПРОЧИТАННЫЕ</div>{items.filter(item => item.read).map(item => <div className="inbox-item" key={item.id}><div className="inbox-icon">{item.icon === 'calendar' ? <CalendarOutlined /> : <StarOutlined />}</div><div className="inbox-copy"><strong>{item.title}</strong><p>{item.body}</p><small>{item.date}</small></div></div>)}</div><div className="inbox-aside"><div className="inbox-aside-symbol">✳</div><strong>Всё важное — рядом</strong><p>Новости занятий, полезные напоминания и добрые слова всегда под рукой.</p></div></div>
+  const { notifications, markNotificationRead } = useOutletContext<{ notifications: Notification[]; markNotificationRead: (id: string) => void }>();
+  const [activeId, setActiveId] = useState<string>();
+  const unread = notifications.filter(item => !item.read);
+  const active = notifications.find(item => item.id === activeId);
+
+  function openNotification(id: string) {
+    setActiveId(id);
+    markNotificationRead(id);
+  }
+
+  function notificationRow(item: Notification) {
+    return <button type="button" className={`inbox-item ${item.read ? '' : 'unread'}`} key={item.id} onClick={() => openNotification(item.id)}>
+      <div className="inbox-icon">{item.icon === 'calendar' ? <CalendarOutlined /> : <StarOutlined />}</div>
+      <div className="inbox-copy"><div className="inbox-item-heading"><strong>{item.title}</strong>{!item.read && <span className="unread-dot" />}</div><p>{item.body}</p><small>{item.date}</small></div>
+    </button>;
+  }
+
+  return <div className="page-enter"><PageHeading kicker="БУДЬТЕ В КУРСЕ" title="Уведомления" description="Здесь живут новости и важные напоминания." action={<div className="soft-count"><BellOutlined /> Новых: {unread.length}</div>} />
+    <div className="inbox-layout"><div className="inbox-list"><div className="inbox-section-title">НОВЫЕ <span>{unread.length}</span></div>{unread.map(notificationRow)}<div className="inbox-section-title older">ПРОЧИТАННЫЕ</div>{notifications.filter(item => item.read).map(notificationRow)}</div><div className="inbox-aside"><div className="inbox-aside-symbol">✳</div><strong>Всё важное — рядом</strong><p>Новости занятий, полезные напоминания и добрые слова всегда под рукой.</p></div></div>
+    <Drawer title="Уведомление" open={!!active} onClose={() => setActiveId(undefined)} width={400}>
+      {active && <div className="notification-detail"><small>{active.date}</small><h2>{active.title}</h2><p>{active.body}</p></div>}
+    </Drawer>
   </div>;
 }
 

@@ -1,5 +1,5 @@
 * { box-sizing: border-box; }
-:root { font-family: Manrope, sans-serif; font-size: 16px; color: #25352d; background: #f7f8f4; font-synthesis: none; }
+:root { font-family: Manrope, sans-serif; font-size: 17px; color: #25352d; background: #f7f8f4; font-synthesis: none; }
 body { margin: 0; min-width: 320px; }
 button, input { font: inherit; }
 button { cursor: pointer; }
@@ -114,6 +114,48 @@ a { color: inherit; text-decoration: none; }
 .profile-edit-parent { display: flex; flex-direction: column; gap: 15px; padding: 15px; background: #f8faf7; border-radius: 10px; }
 .profile-edit-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
 
+.person-avatar .ant-avatar-img { object-fit: cover; }
+.schedule-filters { gap: 10px; }
+.schedule-filters .ant-select { min-width: 0; }
+.schedule-filters .schedule-topic-select { width: 230px; }
+.schedule-filters .schedule-group-select { width: 190px; }
+.schedule-filters .schedule-student-select { width: 230px; }
+.schedule-filters .ant-select-selector { font-size: 0.9375rem; }
+.lesson-create-form { display: flex; flex-direction: column; gap: 19px; padding: 6px 2px 25px; }
+.lesson-create-form label { display: flex; flex-direction: column; gap: 8px; font-size: 0.9375rem; font-weight: 700; }
+.lesson-create-form label > .ant-picker, .lesson-create-form label > .ant-select { width: 100%; }
+.lesson-create-times { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.lesson-create-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+.inbox-item { width: 100%; background: white; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.inbox-item:hover { background: #f1f6ee; border-color: #b7cbb7; }
+.inbox-item:focus-visible { outline: 2px solid #466a4b; outline-offset: 2px; }
+.notification-detail { padding: 10px 4px; }
+.notification-detail small { color: #506653; font-size: 0.875rem; }
+.notification-detail h2 { font-family: Nunito, sans-serif; font-size: 1.5rem; margin: 18px 0 12px; }
+.notification-detail p { line-height: 1.75; font-size: 1rem; }
+.landing-header-note, .landing-lead, .login-subtitle, .login-hint, .login-caption, .landing-footer,
+.sidebar-section-caption, .nav-link, .sidebar-tip > span, .sidebar-exit, .topbar-crumb, .topbar-today, .topbar-user small, .shell-footer,
+.page-heading p, .student-row-main small, .student-row-end, .student-row-label, .empty-list, .student-detail-banner,
+.student-identity > span:last-child, .detail-label, .student-about, .profile-about, .mini-detail small, .parent-contact small,
+.day-heading span, .day-heading small, .day-empty, .schedule-bottom, .lesson-detail-body > p, .lesson-info-row small,
+.profile-role-pill, .profile-name-row p, .section-title p, .contact-lines small, .profile-facts small,
+.preview-heading span, .preview-item p, .preview-item small, .inbox-section-title, .inbox-copy p, .inbox-copy small,
+.inbox-aside p, .stub-eyebrow, .stub-card p { color: #506353; }
+.eyebrow, .page-kicker, .login-card-top, .role-tab, .soft-count, .interest-tags .ant-tag,
+.preview-all, .inbox-section-title span, .lesson-student-tags .ant-tag { color: #3f6347; }
+.lesson-violet { color: #55416f; }.lesson-orange { color: #74461f; }.lesson-pink { color: #793d54; }.lesson-green { color: #386344; }
+.avatar-teacher { color: #34553a; }.avatar-lavender { color: #604778; }.avatar-peach { color: #78492e; }
+.avatar-mint { color: #396e52; }.avatar-sky { color: #375c70; }.avatar-butter { color: #705916; }.avatar-rose { color: #78444c; }
+.nav-link, .student-row-main strong, .student-row-end, .parent-contact strong, .mini-detail strong,
+.lesson-card strong, .profile-facts strong, .contact-lines strong, .inbox-copy strong { font-size: 0.9375rem; }
+.sidebar-section-caption, .detail-label, .student-row-label, .mini-detail small, .parent-contact small,
+.day-heading span, .day-heading small, .lesson-card .lesson-time, .lesson-topic, .lesson-group,
+.contact-lines small, .profile-facts small, .preview-item p, .preview-item small, .inbox-section-title,
+.inbox-copy small, .stub-eyebrow { font-size: 0.8125rem; }
+.page-heading p, .student-about, .lesson-detail-body > p, .inbox-copy p, .stub-card p { font-size: 1rem; }
+.preview-item strong, .preview-all, .contact-lines strong, .profile-facts strong { font-size: 0.9375rem; }
+.lesson-card .lesson-time, .lesson-topic, .lesson-group { opacity: 1; }
+
 @media (max-width: 1200px) {
   .landing-main { gap: 35px; grid-template-columns: minmax(0, 1fr) minmax(380px, .9fr); }.landing-copy h1 { font-size: 62px; }.landing-art { transform: scale(.8); transform-origin: bottom left; }
   .sidebar { width: 218px; flex-basis: 218px; }.content { padding-inline: 30px; }.topbar { padding-inline: 30px; }.students-layout { grid-template-columns: minmax(0, 1fr) 295px; gap: 15px; }.student-row-end { display: none; }.schedule-toolbar { align-items: flex-start; }.schedule-filters { width: 100%; }.schedule-filters .ant-select { flex: 1; }
@@ -124,9 +166,9 @@ a { color: inherit; text-decoration: none; }
 }
 @media (max-width: 700px) {
   .landing-copy { padding-top: 30px; }.landing-copy h1 { white-space: normal; font-size: clamp(44px, 10vw, 61px); letter-spacing: -3px; }.landing-lead { font-size: 1rem; }.landing-perks { gap: 12px 20px; font-size: 0.8125rem; }.login-card { padding: 30px 26px; }.landing-footer { gap: 15px; flex-wrap: wrap; padding: 15px 0; line-height: 1.5; }
-  .topbar { height: 65px; flex-basis: 65px; padding: 0 18px; }.topbar-today { display: none; }.topbar-actions { gap: 12px; }.topbar-user > span:last-child { display: none; }.topbar-divider { height: 24px; }.content { padding: 27px 18px 45px; }.shell-footer { padding-inline: 18px; }.shell-footer span { display: none; }.page-heading { align-items: flex-start; }.page-heading h1 { font-size: 29px; }.page-heading p { font-size: 0.875rem; }.heading-action { display: none; }
+  .topbar { height: 65px; flex-basis: 65px; padding: 0 18px; }.topbar-today { display: none; }.topbar-actions { gap: 12px; }.topbar-user > span:last-child { display: none; }.topbar-divider { height: 24px; }.content { padding: 27px 18px 45px; }.shell-footer { padding-inline: 18px; }.shell-footer span { display: none; }.page-heading { align-items: flex-start; }.page-heading h1 { font-size: 29px; }.page-heading p { font-size: 1rem; }.heading-action { display: flex; width: 100%; }.heading-action .ant-btn { width: 100%; } .page-heading:has(.heading-action) { flex-wrap: wrap; }
   .students-layout, .profile-layout, .inbox-layout { grid-template-columns: 1fr; }.student-detail { order: -1; }.student-detail-content { padding-bottom: 15px; }.student-list-area { margin-top: 0; }.student-detail-banner { height: 75px; }.student-detail-content .detail-divider, .student-detail-content .detail-label, .student-about, .student-detail-content .interest-tags, .student-detail-content .mini-detail, .student-detail-content .parent-contact { display: none; }.student-identity { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; text-align: left; margin-top: -24px; padding-bottom: 0; }.student-identity .ant-avatar { width: 52px !important; height: 52px !important; line-height: 52px !important; }.student-identity h2 { flex: 1; margin: 16px 0 0; font-size: 20px; }.student-identity > span:last-child { width: 100%; margin: -10px 0 0 74px; }.student-row { min-height: 76px; }.student-row .ant-avatar { width: 42px !important; height: 42px !important; line-height: 42px !important; }.list-toolbar { padding: 12px; }.group-select { width: 135px; }
-  .schedule-toolbar { padding: 14px; }.schedule-filters { display: grid; grid-template-columns: 1fr 1fr; }.schedule-filters .ant-select:first-child { grid-column: 1 / -1; }.schedule-filters .ant-select { width: 100%; min-width: 0; }.schedule-week { grid-template-columns: 1fr; }.schedule-day { display: flex; min-height: 0; border-right: 0; border-bottom: 1px solid #f0f2ed; }.schedule-day:last-child { border-bottom: 0; }.day-heading { flex: 0 0 75px; height: auto; min-height: 115px; border-bottom: 0; border-right: 1px solid #eff1ed; }.day-lessons { flex: 1; min-width: 0; padding: 9px; }.lesson-card { min-height: 0; }.lesson-card.compact { min-height: 0; }.lesson-group { margin-top: 8px; }.day-empty { min-height: 95px; flex-direction: row; }.schedule-bottom { gap: 10px; }.schedule-bottom > span { display: none; }.schedule-note { padding: 15px; }
-  .profile-side { gap: 15px; }.profile-cover { height: 140px; }.profile-main-content { padding-inline: 22px; }.profile-avatar-wrap .ant-avatar { width: 72px !important; height: 72px !important; line-height: 72px !important; }.profile-name-row h2 { font-size: 23px; }.inbox-aside { display: none; }.notification-preview { width: min(340px, calc(100vw - 28px)); }.inbox-list { padding: 7px 14px 15px; }.inbox-item { padding: 13px; }.inbox-copy p { font-size: 0.8125rem; }
+  .schedule-toolbar { padding: 14px; }.schedule-filters { display: grid; grid-template-columns: 1fr 1fr; }.schedule-filters .ant-select:first-child { grid-column: 1 / -1; min-width: 0; }.schedule-filters .ant-select, .schedule-filters .schedule-topic-select, .schedule-filters .schedule-group-select, .schedule-filters .schedule-student-select { width: 100%; min-width: 0; }.schedule-week { grid-template-columns: 1fr; }.schedule-day { display: flex; min-height: 0; border-right: 0; border-bottom: 1px solid #f0f2ed; }.schedule-day:last-child { border-bottom: 0; }.day-heading { flex: 0 0 75px; height: auto; min-height: 115px; border-bottom: 0; border-right: 1px solid #eff1ed; }.day-lessons { flex: 1; min-width: 0; padding: 9px; }.lesson-card { min-height: 0; }.lesson-card.compact { min-height: 0; }.lesson-group { margin-top: 8px; }.day-empty { min-height: 95px; flex-direction: row; }.schedule-bottom { gap: 10px; }.schedule-bottom > span { display: none; }.schedule-note { padding: 15px; }
+  .profile-side { gap: 15px; }.profile-cover { height: 140px; }.profile-main-content { padding-inline: 22px; }.profile-avatar-wrap .ant-avatar { width: 72px !important; height: 72px !important; line-height: 72px !important; }.profile-name-row h2 { font-size: 23px; }.inbox-aside { display: none; }.notification-preview { width: min(340px, calc(100vw - 28px)); }.inbox-list { padding: 7px 14px 15px; }.inbox-item { padding: 13px; }.inbox-copy p { font-size: 1rem; }
 }
 @media (max-width: 390px) { .landing-copy h1 { font-size: 42px; }.login-card { padding: 28px 19px; }.role-tab { font-size: 0.875rem; }.group-select { width: 120px; }.student-row { padding-inline: 13px; gap: 10px; }.student-row-arrow { display: none; }.topbar-crumb { font-size: 0.8125rem; } }

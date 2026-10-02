@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Link, Outlet, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
-import { Avatar, Badge, Button, Drawer, Input, Popover } from 'antd';
+import { Badge, Button, Drawer, Input, Popover } from 'antd';
 import {
   ArrowRightOutlined, BellOutlined, BookOutlined, CalendarOutlined, CheckCircleFilled,
   FolderOpenOutlined, HomeOutlined, MenuOutlined, ReadOutlined,
@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import { api, type Notification, type Role, type Student, type Teacher } from './data';
 import { InboxPage, LessonsPage, ProfilePage, StudentsPage, StubPage } from './Pages';
+import PersonAvatar from './PersonAvatar';
 
 const roleHome = (role: Role) => role === 'teacher' ? '/teacher/students' : '/student/lessons';
 
@@ -70,17 +71,18 @@ function LandingPage() {
           <Button className="login-submit" type="primary" size="large" loading={entering} onClick={enter}>Войти в кабинет <ArrowRightOutlined /></Button>
           <div className="login-hint"><span>✦</span> Это демонстрационная версия — просто нажмите «Войти»</div>
         </div>
-        <div className="login-caption">Демонстрационный доступ · данные не сохраняются на сервере</div>
+        <div className="login-caption">Демонстрационный доступ к системе</div>
       </div>
     </main>
     <footer className="landing-footer page-container"><span>© 2026 «Открытие» — центр развития детей</span><span>Демонстрационная версия системы</span></footer>
   </div>;
 }
 
-function NotificationPreview({ items, to, close }: { items: Notification[]; to: string; close: () => void }) {
+function NotificationPreview({ items, to, close, markRead }: { items: Notification[]; to: string; close: () => void; markRead: (id: string) => void }) {
+  const unreadCount = items.filter(item => !item.read).length;
   return <div className="notification-preview">
-    <div className="preview-heading"><strong>Уведомления</strong><span>1 новое</span></div>
-    {items.map(item => <Link to={to} onClick={close} className={`preview-item ${item.read ? '' : 'unread'}`} key={item.id}>
+    <div className="preview-heading"><strong>Уведомления</strong><span>{unreadCount} новых</span></div>
+    {items.map(item => <Link to={to} onClick={() => { markRead(item.id); close(); }} className={`preview-item ${item.read ? '' : 'unread'}`} key={item.id}>
       <div className="preview-icon">{item.icon === 'calendar' ? <CalendarOutlined /> : <StarOutlined />}</div>
       <div><strong>{item.title}</strong><p>{item.body}</p><small>{item.date}</small></div>
       {!item.read && <span className="unread-dot" />}
@@ -104,6 +106,10 @@ function Shell({ role }: { role: Role }) {
     api<Notification[]>('notifications/').then(setNotifications);
   }, [role]);
   useEffect(() => { setDrawerOpen(false); setBellOpen(false); }, [location.pathname]);
+
+  function markNotificationRead(id: string) {
+    setNotifications(current => current.map(item => item.id === id ? { ...item, read: true } : item));
+  }
 
   const links = [
     ...(isTeacher ? [{ path: 'students', label: 'Мои ученики', icon: <TeamOutlined /> }] : []),
@@ -131,14 +137,14 @@ function Shell({ role }: { role: Role }) {
         <div className="topbar-left"><button className="mobile-menu" onClick={() => setDrawerOpen(true)} aria-label="Открыть меню"><MenuOutlined /></button><span className="topbar-crumb">Личный кабинет <span>/</span> <strong>{isTeacher ? 'Педагог' : 'Ученик'}</strong></span></div>
         <div className="topbar-actions">
           <span className="topbar-today">Пятница, 2 октября</span>
-          <Popover content={<NotificationPreview items={notifications} to={`${base}/inbox`} close={() => setBellOpen(false)} />} trigger="click" placement="bottomRight" open={bellOpen} onOpenChange={setBellOpen} overlayClassName="notification-popover">
+          <Popover content={<NotificationPreview items={notifications} to={`${base}/inbox`} close={() => setBellOpen(false)} markRead={markNotificationRead} />} trigger="click" placement="bottomRight" open={bellOpen} onOpenChange={setBellOpen} overlayClassName="notification-popover">
             <button className="bell-button" aria-label="Уведомления"><Badge count={notifications.filter(item => !item.read).length} size="small"><BellOutlined /></Badge></button>
           </Popover>
           <span className="topbar-divider" />
-          <button className="topbar-user" onClick={() => navigate(`${base}/profile`)}><Avatar className={`person-avatar ${isTeacher ? 'avatar-teacher' : 'avatar-lavender'}`} size={38}>{profile?.initials}</Avatar><span><strong>{profile?.name}</strong><small>{isTeacher ? 'Педагог' : 'Ученик'}</small></span></button>
+          <button className="topbar-user" onClick={() => navigate(`${base}/profile`)}><PersonAvatar initials={profile?.initials ?? ''} avatarUrl={profile?.avatarUrl} color={isTeacher ? 'teacher' : (profile as Student | undefined)?.color} size={38} /><span><strong>{profile?.name}</strong><small>{isTeacher ? 'Педагог' : 'Ученик'}</small></span></button>
         </div>
       </header>
-      <main className="content"><Outlet context={{ profile, setProfile }} /></main>
+      <main className="content"><Outlet context={{ profile, setProfile, notifications, markNotificationRead }} /></main>
       <footer className="shell-footer">© 2026 «Открытие» <span>Демонстрационная версия системы</span></footer>
     </div>
   </div>;
