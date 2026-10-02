@@ -145,7 +145,7 @@ function Shell({ role }: { role: Role }) {
         </div>
       </header>
       <main className="content"><Outlet context={{ profile, setProfile, notifications, markNotificationRead }} /></main>
-      <footer className="shell-footer">© 2026 «Открытие» <span>Демонстрационная версия системы</span> Разработано в <a href="7-sky.net">7SKY</a></footer>
+      <footer className="shell-footer"><span>© 2026 «Открытие»</span><div className="shell-footer-meta"><span className="shell-footer-demo">Демонстрационная версия системы</span><span>Разработано в <a href="https://7-sky.net">7SKY</a></span></div></footer>
     </div>
   </div>;
 }
