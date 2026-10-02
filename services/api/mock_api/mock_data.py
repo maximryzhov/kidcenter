@@ -4,7 +4,7 @@ TEACHER = {
     "shortName": "Анна Сергеевна",
     "role": "Педагог",
     "initials": "АМ",
-    "avatarUrl": "https://i.pravatar.cc/240?img=47",
+    "avatarUrl": "/portraits/teacher.jpg",
     "specialty": "Развитие речи и творчество",
     "experience": "8 лет с детьми",
     "about": "Помогаю детям открывать новое через игру, творчество и маленькие ежедневные победы.",
@@ -19,7 +19,7 @@ TEACHER = {
 
 STUDENTS = [
     {
-        "id": "student-1", "name": "София Иванова", "initials": "СИ", "avatarUrl": "https://i.pravatar.cc/240?img=5", "age": 7,
+        "id": "student-1", "name": "София Иванова", "initials": "СИ", "avatarUrl": "/portraits/student-1.jpg", "age": 7,
         "group": "Звёздочки", "color": "lavender", "attendance": "12 из 14 занятий",
         "nextLesson": "5 октября · 10:00", "interests": ["Рисование", "Чтение"],
         "about": "Любит придумывать истории и рисовать героев для них.",
@@ -31,7 +31,7 @@ STUDENTS = [
         ],
     },
     {
-        "id": "student-2", "name": "Марк Петров", "initials": "МП", "avatarUrl": "https://i.pravatar.cc/240?img=12", "age": 8,
+        "id": "student-2", "name": "Марк Петров", "initials": "МП", "avatarUrl": "/portraits/student-2.jpg", "age": 8,
         "group": "Исследователи", "color": "peach", "attendance": "10 из 12 занятий",
         "nextLesson": "5 октября · 12:00", "interests": ["Конструирование", "Наука"],
         "about": "Любит задавать вопросы и собирать необычные конструкции.",
@@ -42,7 +42,7 @@ STUDENTS = [
         ],
     },
     {
-        "id": "student-3", "name": "Алиса Смирнова", "initials": "АС", "avatarUrl": "https://i.pravatar.cc/240?img=9", "age": 6,
+        "id": "student-3", "name": "Алиса Смирнова", "initials": "АС", "avatarUrl": "/portraits/student-3.jpg", "age": 6,
         "group": "Звёздочки", "color": "mint", "attendance": "13 из 14 занятий",
         "nextLesson": "5 октября · 10:00", "interests": ["Музыка", "Лепка"],
         "about": "Всегда готова попробовать что-то новое и поддержать друзей.",
@@ -53,7 +53,7 @@ STUDENTS = [
         ],
     },
     {
-        "id": "student-4", "name": "Лев Кузнецов", "initials": "ЛК", "avatarUrl": "https://i.pravatar.cc/240?img=11", "age": 7,
+        "id": "student-4", "name": "Лев Кузнецов", "initials": "ЛК", "avatarUrl": "/portraits/student-4.jpg", "age": 7,
         "group": "Исследователи", "color": "sky", "attendance": "11 из 12 занятий",
         "nextLesson": "5 октября · 12:00", "interests": ["Природа", "Роботы"],
         "about": "С интересом изучает мир вокруг и любит командные игры.",
@@ -65,7 +65,7 @@ STUDENTS = [
         ],
     },
     {
-        "id": "student-5", "name": "Полина Орлова", "initials": "ПО", "avatarUrl": "https://i.pravatar.cc/240?img=20", "age": 8,
+        "id": "student-5", "name": "Полина Орлова", "initials": "ПО", "avatarUrl": "/portraits/student-5.jpg", "age": 8,
         "group": "Звёздочки", "color": "butter", "attendance": "14 из 14 занятий",
         "nextLesson": "5 октября · 10:00", "interests": ["Театр", "Рисование"],
         "about": "Обожает выступать и делиться своими идеями.",

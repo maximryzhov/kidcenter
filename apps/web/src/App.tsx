@@ -74,7 +74,7 @@ function LandingPage() {
         <div className="login-caption">Демонстрационный доступ к системе</div>
       </div>
     </main>
-    <footer className="landing-footer page-container"><span>© 2026 «Открытие» — центр развития детей</span><div className="shell-footer-meta"><span>Демонстрационная версия системы</span><span>Разработано в <a href="https://7-sky.net">7SKY</a></span></div></footer>
+    <footer className="landing-footer page-container"><span>© 2026 «Открытие» — центр развития детей</span><div className="shell-footer-meta"><span>Разработано в <a href="https://7-sky.net">7SKY</a></span></div></footer>
   </div>;
 }
 
@@ -141,7 +141,7 @@ function Shell({ role }: { role: Role }) {
             <button className="bell-button" aria-label="Уведомления"><Badge count={notifications.filter(item => !item.read).length} size="small"><BellOutlined /></Badge></button>
           </Popover>
           <span className="topbar-divider" />
-          <button className="topbar-user" onClick={() => navigate(`${base}/profile`)}><PersonAvatar initials={profile?.initials ?? ''} avatarUrl={profile?.avatarUrl} color={isTeacher ? 'teacher' : (profile as Student | undefined)?.color} size={38} /><span><strong>{profile?.name}</strong><small>{isTeacher ? 'Педагог' : 'Ученик'}</small></span></button>
+          <button className="topbar-user" onClick={() => navigate(`${base}/profile`)}><PersonAvatar id={profile?.id} initials={profile?.initials ?? ''} avatarUrl={profile?.avatarUrl} color={isTeacher ? 'teacher' : (profile as Student | undefined)?.color} size={38} /><span><strong>{profile?.name}</strong><small>{isTeacher ? 'Педагог' : 'Ученик'}</small></span></button>
         </div>
       </header>
       <main className="content"><Outlet context={{ profile, setProfile, notifications, markNotificationRead }} /></main>

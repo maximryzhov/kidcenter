@@ -40,7 +40,7 @@ export function StudentsPage() {
         <div className="list-toolbar"><Input placeholder="Найти ученика" prefix={<SearchOutlined />} value={search} onChange={event => setSearch(event.target.value)} className="student-search" /><Select value={group} onChange={setGroup} className="group-select" options={[{ value: 'all', label: 'Все группы' }, { value: 'Звёздочки', label: 'Звёздочки' }, { value: 'Исследователи', label: 'Исследователи' }]} /></div>
         <div className="student-list">
           {filtered.map(student => <button key={student.id} onClick={() => setSelectedId(student.id)} className={`student-row ${selectedId === student.id ? 'active' : ''}`}>
-            <PersonAvatar initials={student.initials} avatarUrl={student.avatarUrl} color={student.color} size={52} />
+            <PersonAvatar id={student.id} initials={student.initials} avatarUrl={student.avatarUrl} color={student.color} size={52} />
             <span className="student-row-main"><strong>{student.name}</strong><small>{student.group} <span>·</span> {student.age} лет</small></span>
             <span className="student-row-end"><span className="student-row-label">Следующее занятие</span><span>{student.nextLesson}</span></span>
             <ArrowRightOutlined className="student-row-arrow" />
@@ -51,7 +51,7 @@ export function StudentsPage() {
       {selected && <div className="student-detail">
         <div className="student-detail-banner"><span className="detail-decor one">✳</span><span className="detail-decor two">✦</span><span>КАРТОЧКА УЧЕНИКА</span></div>
         <div className="student-detail-content">
-          <div className="student-identity"><PersonAvatar initials={selected.initials} avatarUrl={selected.avatarUrl} color={selected.color} size={76} /><h2>{selected.name}</h2><span>{selected.age} лет · группа «{selected.group}»</span></div>
+          <div className="student-identity"><PersonAvatar id={selected.id} initials={selected.initials} avatarUrl={selected.avatarUrl} color={selected.color} size={76} /><h2>{selected.name}</h2><span>{selected.age} лет · группа «{selected.group}»</span></div>
           <div className="detail-divider" />
           <div className="detail-label">НЕМНОГО О РЕБЁНКЕ</div><p className="student-about">{selected.about}</p>
           <div className="detail-label">ИНТЕРЕСЫ</div><div className="interest-tags">{selected.interests.map(interest => <Tag key={interest}>{interest}</Tag>)}</div>
@@ -237,7 +237,7 @@ export function ProfilePage({ role }: { role: Role }) {
     <div className="profile-layout">
       <div className="profile-main-card">
         <div className="profile-cover"><span className="cover-flower">✳</span><span className="cover-spark">✦</span><span className="cover-spark second">✧</span></div>
-        <div className="profile-main-content"><div className="profile-avatar-wrap"><PersonAvatar initials={profile.initials} avatarUrl={profile.avatarUrl} color={isTeacher ? 'teacher' : student.color} size={92} /></div><div className="profile-name-row"><div><div className="profile-role-pill">{isTeacher ? '✦ ПЕДАГОГ' : '✦ УЧЕНИК'}</div><h2>{profile.name}</h2><p>{isTeacher ? teacher.specialty : `${student.age} лет · группа «${student.group}»`}</p></div><Button icon={<EditOutlined />} onClick={openEditor}>Редактировать</Button></div><div className="detail-divider" /><div className="detail-label">ОБО МНЕ</div><p className="profile-about">{profile.about}</p><div className="detail-label">{isTeacher ? 'МОИ НАПРАВЛЕНИЯ' : 'МОИ ИНТЕРЕСЫ'}</div><div className="interest-tags">{(isTeacher ? teacher.subjects : student.interests).map(item => <Tag key={item}>{item}</Tag>)}</div></div>
+        <div className="profile-main-content"><div className="profile-avatar-wrap"><PersonAvatar id={profile.id} initials={profile.initials} avatarUrl={profile.avatarUrl} color={isTeacher ? 'teacher' : student.color} size={92} /></div><div className="profile-name-row"><div><div className="profile-role-pill">{isTeacher ? '✦ ПЕДАГОГ' : '✦ УЧЕНИК'}</div><h2>{profile.name}</h2><p>{isTeacher ? teacher.specialty : `${student.age} лет · группа «${student.group}»`}</p></div><Button icon={<EditOutlined />} onClick={openEditor}>Редактировать</Button></div><div className="detail-divider" /><div className="detail-label">ОБО МНЕ</div><p className="profile-about">{profile.about}</p><div className="detail-label">{isTeacher ? 'МОИ НАПРАВЛЕНИЯ' : 'МОИ ИНТЕРЕСЫ'}</div><div className="interest-tags">{(isTeacher ? teacher.subjects : student.interests).map(item => <Tag key={item}>{item}</Tag>)}</div></div>
       </div>
       <div className="profile-side">
         <section className="white-card contact-card"><div className="section-title"><div className="section-icon"><MailOutlined /></div><div><h3>Мои контакты</h3><p>Как со мной связаться</p></div></div><ContactLines email={profile.email} max={profile.max} telegram={profile.telegram} /></section>
